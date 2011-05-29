@@ -1,0 +1,3 @@
+g++ -Wall -ansi raytrace.cpp scene.cpp config.cpp -o raytrace
+
+raytrace scene.txt output.tga
