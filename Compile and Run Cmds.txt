@@ -1,3 +1,8 @@
 g++ -Wall -ansi raytrace.cpp scene.cpp config.cpp -o raytrace
 
+or
+
+mingw32-make
+
+
 raytrace scene.txt output.tga
