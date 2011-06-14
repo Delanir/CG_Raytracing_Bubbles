@@ -1,0 +1,118 @@
+///////////////////////////////////////
+// First version of the scene file format
+// 
+// - It allows you to add comments like this one
+// - Syntax itself is hopefully self explanatory
+// - Name of the objects and attributes are defined inside the executable
+
+///////////////////////////////////////
+//    Global scene and viewpoint     //
+///////////////////////////////////////
+
+Scene
+{
+	// output image dimension
+	Image.Width = 1280;
+	Image.Height = 800;
+
+	Perspective.Type = conic;
+
+	// field of view on horizontal axis (from extrem right to extrem left)
+	// in degrees
+	Perspective.FOV = 90.0f;
+	// Distance of the plane where objects are "in focus"
+	Perspective.ClearPoint = 450.0f;
+	// Amount of blur that is added to objects not in focus
+	Perspective.Dispersion = 10.0f;
+
+	// this user value determines if the image is low key or high key
+	// used to compute exposure value
+	Tonemap.Midpoint = 0.7f;
+	// This enhances contrast if the black level is more than zero and has no effect otherwise
+	Tonemap.Power = 3.0f;
+	// Affects flatness of the response curve in the black levels
+	Tonemap.Black = 0.1f;
+
+	// Count the objects in the scene
+	// description will follow
+	NumberOfMaterials = 3;
+	NumberOfSpheres = 3;
+	NumberOfLights = 2;
+
+	Complexity = 1;
+
+	Cubemap.Up = alpup.tga;
+	Cubemap.Down = alpdown.tga;
+	Cubemap.Right = alpright.tga;
+	Cubemap.Left = alpleft.tga;
+	Cubemap.Forward = alpforward.tga;
+	Cubemap.Backward = alpback.tga;
+	Cubemap.Exposed = true;
+	Cubemap.sRGB = false;
+}
+
+
+///////////////////////////////////////
+//         List of materials         //
+///////////////////////////////////////
+Material0
+{
+  Diffuse = 0.1, 0.1, 0.1;
+  Reflection = 0.0;
+  Refraction = 0.0;
+}
+
+Material1
+{
+  Diffuse = 0.0, 1.0, 1.0;
+  Reflection = 0.5;
+  Refraction = 0.0;
+}
+
+Material2
+{
+  Diffuse = 1.0, 0.0, 1.0;
+  Reflection = 0.5;
+  Refraction = 0.0;
+}
+
+///////////////////////////////////////
+//         List of spheres           //
+///////////////////////////////////////
+Sphere0
+{
+  Center = 233.0, 290.0, -150.0;
+  Size = 100.0;
+  Material.Id = 0;
+}
+
+Sphere1
+{
+  Center = 407.0, 290.0, 0.0;
+  Size = 100.0;
+  Material.Id = 1;
+}
+
+Sphere2
+{
+  Center = 320.0, 140.0, 0.0;
+  Size = 100.0;
+  Material.Id = 1;
+}
+
+///////////////////////////////////////
+//         List of lights            //
+///////////////////////////////////////
+Light0
+{
+  Position = 0.0, 240.0, -100.0;
+  Intensity = 1.0, 1.0, 1.0;
+  Intensity = 5.0, 5.0, 5.0;
+}
+
+Light1
+{
+  Position = 640.0, 240.0, -10000.0;
+  Intensity = 0.6, 0.7, 1.0;
+  Intensity = 0.6, 0.7, 1.0;
+}

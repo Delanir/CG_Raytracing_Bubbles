@@ -1,4 +1,4 @@
-g++ -Wall -ansi raytrace.cpp scene.cpp config.cpp -o raytrace
+g++ -Wall -ansi raytrace.cpp scene.cpp config.cpp cubemap.cpp -o raytrace
 
 or
 
