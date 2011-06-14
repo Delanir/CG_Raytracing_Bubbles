@@ -405,24 +405,7 @@ bool draw(char* outputName, scene &myScene)
     for (y = 0; y < myScene.sizey; ++y)
     for (x = 0 ; x < myScene.sizex; ++x)
     {
-        if (y < 10)
-        {
-            // Use ten lines in the final image as an intensity calibration hint
-            if ((x / 10) & 1)
-            {
-                imageFile.put((unsigned char)186).put((unsigned char)186).put((unsigned char)186);
-            }
-            else if ( y & 1)
-            {
-                imageFile.put((unsigned char)255).put((unsigned char)255).put((unsigned char)255);
-            }
-            else
-            {
-                imageFile.put((unsigned char)0).put((unsigned char)0).put((unsigned char)0);
-            }
-        }
-        else
-        {
+        
             color output = {0.0f, 0.0f, 0.0f};
             for (float fragmentx = float(x) ; fragmentx < x + 1.0f; fragmentx += 0.5f )
             for (float fragmenty = float(y) ; fragmenty < y + 1.0f; fragmenty += 0.5f )
@@ -518,7 +501,7 @@ bool draw(char* outputName, scene &myScene)
             output.green = srgbEncode(output.green);
 
             imageFile.put((unsigned char)min(output.blue*255.0f,255.0f)).put((unsigned char)min(output.green*255.0f, 255.0f)).put((unsigned char)min(output.red*255.0f, 255.0f));
-        }
+    
     }
     return true;
 }
