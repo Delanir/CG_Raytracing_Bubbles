@@ -41,12 +41,12 @@ Scene
 
 	Complexity = 15;
 
-	Cubemap.Up = alpup.tga;
-	Cubemap.Down = alpdown.tga;
-	Cubemap.Right = alpright.tga;
-	Cubemap.Left = alpleft.tga;
-	Cubemap.Forward = alpforward.tga;
-	Cubemap.Backward = alpback.tga;
+	Cubemap.Up = underwater01/underwater01up.tga;
+	Cubemap.Down = underwater01/underwater01dn.tga;
+	Cubemap.Right = underwater01/underwater01rt.tga;
+	Cubemap.Left = underwater01/underwater01lf.tga;
+	Cubemap.Forward = underwater01/underwater01ft.tga;
+	Cubemap.Backward = underwater01/underwater01bk.tga;
 	Cubemap.Exposed = true;
 	Cubemap.sRGB = true;
 }
