@@ -1,14 +1,21 @@
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <stack>
 using namespace std;
-
 #include "raytrace.h"
 #include "scene.h"
 #include "cubemap.h"
+
+
+
+stack <float> refractionN;
+
+int maxDepth=0;
 
 bool hitSphere(const ray &r, const sphere &s, float &t)
 { 
@@ -50,277 +57,156 @@ float srgbEncode(float c)
     }
 }
 
-color addRay(ray viewRay, scene &myScene, context myContext)
-{
-    color output = {0.0f, 0.0f, 0.0f}; 
+int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
+	color output = {0.0f, 0.0f, 0.0f}; 
     float coef = 1.0f;
-    int level = 0;
-    do 
-    {
-        point ptHitPoint;
-        vector2 vNormal;
-        material currentMat;
-        {
-            int currentSphere=-1;
-            float t = 2000.0f;
-            for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
-            {
-                if (hitSphere(viewRay, myScene.sphereContainer[i], t))
-                {
-                    currentSphere = i;
-                }
-            }
-			if (currentSphere != -1)
-            {
-                ptHitPoint  = viewRay.start + t * viewRay.dir;
-                vNormal = ptHitPoint - myScene.sphereContainer[currentSphere].pos;
-                float temp = vNormal * vNormal;
-                if (temp == 0.0f)
-                    break;
-                temp = invsqrtf(temp);
-                vNormal = temp * vNormal;
-                currentMat = myScene.materialContainer[myScene.sphereContainer[currentSphere].materialId];
-            }
-            else
-            {
-                break;
-            }
-        }
+	float reflectance;
+	float transmitance;
+	if(depth>maxDepth ){
+	
+	return -1;
+	
+	}
+	
+	point ptHitPoint;
+	vector2 vNormal;
+	material currentMat;
+	bool bInside;
+	int currentSphere=-1;
+	float t = 2000.0f;
+	for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
+	{
+		if (hitSphere(viewRay, myScene.sphereContainer[i], t))
+		{
+			currentSphere = i;
+		}
+	}
+	if (currentSphere != -1)
+	{
+		ptHitPoint  = viewRay.start + t * viewRay.dir;
+		vNormal = ptHitPoint - myScene.sphereContainer[currentSphere].pos;
+		float temp = vNormal * vNormal;
+		if (temp == 0.0f){
+			
+			return -1;// lalalalalalalala
 
-        float bInside;
+		}
+		temp = invsqrtf(temp);
+		vNormal = temp * vNormal;
+		currentMat = myScene.materialContainer[myScene.sphereContainer[currentSphere].materialId];
+	}
+	else
+	{
+		output += coef * readCubemap(myScene.cm, viewRay); // the ray ends up hitting the skybox
+		c_color=output;
+		return 0;
+	}
+	float nr ;
+	if (vNormal * viewRay.dir > 0.0f)
+	{
+		vNormal = -1.0f * vNormal;
+		bInside = true;
+		
+		nr=refractionN.top();
+		refractionN.pop();
+	}
+	else
+	{
+		nr= currentMat.density;
+		
+		bInside = false;
+	}
+	
+	reflectance=0.0f;
+	transmitance=currentMat.refraction;
+	
+	float cos_i= vNormal*((-1)*viewRay.dir);
+	float n = ni / nr;
+	//cout << n<< endl;
+	
+	float cos_r;
+	if(cos_i  >= 0.999f){
+		//cout << "HERE" << endl;
+		// In this case the ray is coming parallel to the normal to the surface
+			
+			reflectance=n*n;
+			if(reflectance>1.0f)
+				reflectance=1.0f;
+			reflectance *= reflectance; 
+			cos_r = 1.0f;
+			transmitance*=(1-reflectance);
+	}else{
+		float sin_r=(1.0f/n)*sin(acos(cos_i));
+		cos_r= sqrtf( 1.0 -  (n*n *(1-cos_i*cos_i)) );
+		
+		/*if (sin_r*sin_r > 0.9999f)
+		{
+			// Beyond that angle all surfaces are purely reflective
+			reflectance = 1.0f ;
+			cos_r = 0.0f;
+		}else{
+			float fReflectanceOrtho = (nr * cos_r - ni * cos_i ) 
+				/ (nr * cos_r + ni  * cos_i);
+			fReflectanceOrtho = fReflectanceOrtho * fReflectanceOrtho;
+			// Then we compute the reflectance in the plane parallel to the plane of reflection
+			float fReflectanceParal = (ni * cos_r - nr*cos_i )
+				/ (ni * cos_r - nr*cos_i);
+			fReflectanceParal = fReflectanceParal * fReflectanceParal;
 
-        if (vNormal * viewRay.dir > 0.0f)
-        {
-            vNormal = -1.0f * vNormal;
-            bInside = true;
-        }
-        else
-        {
-            bInside = false;
-        }
+			// The reflectance coefficient is the average of those two.
+			// If we consider a light that hasn't been previously polarized.
+			reflectance =  0.5f * (fReflectanceOrtho + fReflectanceParal);
+		
+		}
+		transmitance= transmitance * (1-reflectance);
+		*/
+	}
+	
+	if(transmitance > 0.0f ){
+		
+		
+		
+		
 
-        /*if (currentMat.bump)
-        {
-            float noiseCoefx = float(noise(0.1 * double(ptHitPoint.x), 0.1 * double(ptHitPoint.y),0.1 * double(ptHitPoint.z)));
-            float noiseCoefy = float(noise(0.1 * double(ptHitPoint.y), 0.1 * double(ptHitPoint.z),0.1 * double(ptHitPoint.x)));
-            float noiseCoefz = float(noise(0.1 * double(ptHitPoint.z), 0.1 * double(ptHitPoint.x),0.1 * double(ptHitPoint.y)));
-            
-            vNormal.x = (1.0f - currentMat.bump ) * vNormal.x + currentMat.bump * noiseCoefx;  
-            vNormal.y = (1.0f - currentMat.bump ) * vNormal.y + currentMat.bump * noiseCoefy;  
-            vNormal.z = (1.0f - currentMat.bump ) * vNormal.z + currentMat.bump * noiseCoefz;  
-            
-            float temp = vNormal * vNormal;
-            if (temp == 0.0f)
-            break;
-            temp = invsqrtf(temp);
-            vNormal = temp * vNormal;
-        }*/
-        
-        float fViewProjection = viewRay.dir * vNormal;
-        float fReflectance, fTransmittance;
-        float fCosThetaI, fSinThetaI, fCosThetaT, fSinThetaT;
+		ray refracted;
+		refracted.start=ptHitPoint;
+			
+		
+		refracted.dir = (n*viewRay.dir)+((cos_i*n)*vNormal)+((-cos_r)*vNormal);
+		
+		
+		
+		
+		
+		color refracted_color;
+		refractionN.push(nr);
+		if(raytrace(refracted ,refracted_color, myScene,depth+1, nr)!=-1){
+			
+			output= transmitance * refracted_color +output;
+			
+		}
+	
+	}
+	reflectance=currentMat.reflection+transmitance*reflectance;
+	if( reflectance >0.0f){
+		ray reflected;
+		reflected.start=ptHitPoint;
+		reflected.dir=viewRay.dir+(2*cos_i)*vNormal;
+		
+		color reflected_color;
+		if(raytrace(reflected ,reflected_color, myScene,depth+1, ni)!=-1){
+			
+			output= reflectance * reflected_color +output;
+			//cout<< output.red;
+		}
+	
+	
+	}
 
-        if(((currentMat.reflection != 0.0f) || (currentMat.refraction != 0.0f) ) && (currentMat.density != 0.0f))
-        {
-            // glass-like material, we're computing the fresnel coefficient.
-
-            float fDensity1 = myContext.fRefractionCoef; 
-            float fDensity2;
-            if (bInside)
-            {
-                // We only consider the case where the ray is originating a medium close to the void (or air) 
-                // In theory, we should first determine if the current object is inside another one
-                // but that's beyond the purpose of our code.
-                fDensity2 = context::getDefaultAir().fRefractionCoef;
-            }
-            else
-            {
-                fDensity2 = currentMat.density;
-            }
-
-            // Here we take into account that the light movement is symmetrical
-            // From the observer to the source or from the source to the oberver.
-            // We then do the computation of the coefficient by taking into account
-            // the ray coming from the viewing point.
-            fCosThetaI = fabsf(fViewProjection); 
-
-            if (fCosThetaI >= 0.999f) 
-            {
-                // In this case the ray is coming parallel to the normal to the surface
-                fReflectance = (fDensity1 - fDensity2) / (fDensity1 + fDensity2);
-                fReflectance = fReflectance * fReflectance;
-                fSinThetaI = 0.0f;
-                fSinThetaT = 0.0f;
-                fCosThetaT = 1.0f;
-            }
-            else 
-            {
-                fSinThetaI = sqrtf(1 - fCosThetaI * fCosThetaI);
-                // The sign of SinThetaI has no importance, it is the same as the one of SinThetaT
-                // and they vanish in the computation of the reflection coefficient.
-                fSinThetaT = (fDensity1 / fDensity2) * fSinThetaI;
-                if (fSinThetaT * fSinThetaT > 0.9999f)
-                {
-                    // Beyond that angle all surfaces are purely reflective
-                    fReflectance = 1.0f ;
-                    fCosThetaT = 0.0f;
-                }
-                else
-                {
-                    fCosThetaT = sqrtf(1 - fSinThetaT * fSinThetaT);
-                    // First we compute the reflectance in the plane orthogonal 
-                    // to the plane of reflection.
-                    float fReflectanceOrtho = (fDensity2 * fCosThetaT - fDensity1 * fCosThetaI ) 
-                        / (fDensity2 * fCosThetaT + fDensity1  * fCosThetaI);
-                    fReflectanceOrtho = fReflectanceOrtho * fReflectanceOrtho;
-                    // Then we compute the reflectance in the plane parallel to the plane of reflection
-                    float fReflectanceParal = (fDensity1 * fCosThetaT - fDensity2 * fCosThetaI )
-                        / (fDensity1 * fCosThetaT + fDensity2 * fCosThetaI);
-                    fReflectanceParal = fReflectanceParal * fReflectanceParal;
-
-                    // The reflectance coefficient is the average of those two.
-                    // If we consider a light that hasn't been previously polarized.
-                    fReflectance =  0.5f * (fReflectanceOrtho + fReflectanceParal);
-                }
-            }
-        }
-        else
-        {
-            // Reflection in a metal-like material. Reflectance is equal in all directions.
-            // Note, that metal are conducting electricity and as such change the polarity of the
-            // reflected ray. But of course we ignore that..
-            fReflectance = 1.0f;
-            fCosThetaI = 1.0f;
-            fCosThetaT = 1.0f;
-        }
-
-        fTransmittance = currentMat.refraction * (1.0f - fReflectance);
-        fReflectance = currentMat.reflection * fReflectance;
-
-        float fTotalWeight = fReflectance + fTransmittance;
-        bool bDiffuse = false;
-
-        if (fTotalWeight > 0.0f)
-        {
-            float fRoulette = (1.0f / RAND_MAX) * rand();
-        
-            if (fRoulette <= fReflectance)
-            {
-                coef *= currentMat.reflection;
-
-                float fReflection = - 2.0f * fViewProjection;
-
-                viewRay.start = ptHitPoint;
-                viewRay.dir += fReflection * vNormal;
-            }
-            else if(fRoulette <= fTotalWeight)
-            {
-                coef *= currentMat.refraction;
-                float fOldRefractionCoef = myContext.fRefractionCoef;
-                if (bInside) 
-                {
-                    myContext.fRefractionCoef = context::getDefaultAir().fRefractionCoef;
-                }
-                else
-                {
-                    myContext.fRefractionCoef = currentMat.density;
-                }
-
-                // Here we compute the transmitted ray with the formula of Snell-Descartes
-                viewRay.start = ptHitPoint;
-
-                viewRay.dir = viewRay.dir + fCosThetaI * vNormal;
-                viewRay.dir = (fOldRefractionCoef / myContext.fRefractionCoef) * viewRay.dir;
-                viewRay.dir += (-fCosThetaT) * vNormal;
-            }
-            else
-            {
-                bDiffuse = true;
-            }
-        }
-        else
-        {
-            bDiffuse = true;
-        }
-
-
-        if (!bInside && bDiffuse)
-        {
-            // Now the "regular lighting"
-
-            ray lightRay;
-            lightRay.start = ptHitPoint;
-            for (unsigned int j = 0; j < myScene.lightContainer.size() ; ++j)
-            {
-                light currentLight = myScene.lightContainer[j];
-
-                lightRay.dir = currentLight.pos - ptHitPoint;
-                float fLightProjection = lightRay.dir * vNormal;
-
-                if ( fLightProjection <= 0.0f )
-                    continue;
-
-                float lightDist = lightRay.dir * lightRay.dir;
-                {
-                    float temp = lightDist;
-                    if ( temp == 0.0f )
-                        continue;
-                    temp = invsqrtf(temp);
-                    lightRay.dir = temp * lightRay.dir;
-                    fLightProjection = temp * fLightProjection;
-                }
-
-                bool inShadow = false;
-                {
-                    float t = lightDist;
-                    for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
-                    {
-                        if (hitSphere(lightRay, myScene.sphereContainer[i], t))
-                        {
-                            inShadow = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!inShadow && (fLightProjection > 0.0f))
-                {
-
-                    float lambert = (lightRay.dir * vNormal) * coef;
-
-					output.red += lambert * currentLight.intensity.red * currentMat.diffuse.red;
-					output.green += lambert * currentLight.intensity.green * currentMat.diffuse.green;
-					output.blue += lambert * currentLight.intensity.blue * currentMat.diffuse.blue;
-
-
-                    // Blinn 
-                    // The direction of Blinn is exactly at mid point of the light ray 
-                    // and the view ray. 
-                    // We compute the Blinn vector and then we normalize it
-                    // then we compute the coeficient of blinn
-                    // which is the specular contribution of the current light.
-
-                    vector2 blinnDir = lightRay.dir - viewRay.dir;
-                    float temp = blinnDir * blinnDir;
-                    if (temp != 0.0f )
-                    {
-                        float blinn = invsqrtf(temp) * max(fLightProjection - fViewProjection , 0.0f);
-                        blinn = coef * powf(blinn, currentMat.power);
-                        output += blinn *currentMat.specular  * currentLight.intensity;
-                    }
-                }
-            }
-            coef = 0.0f ;
-        }
-
-        level++;
-    } while ((coef > 0.0f) && (level < 10));  
-
-    if (coef > 0.0f)
-    {
-        output += coef * readCubemap(myScene.cm, viewRay);
-    }
-    return output;
+	c_color=output;
+	
+	return 0;
+	
 }
 
 float AutoExposure(scene &myScene)
@@ -339,7 +225,9 @@ float AutoExposure(scene &myScene)
             if (myScene.persp.type == perspective::orthogonal)
             {
                 ray viewRay = { {float(x)*accufacteur, float(y) * accufacteur, -1000.0f}, { 0.0f, 0.0f, 1.0f}};
-                color currentColor = addRay (viewRay, myScene, context::getDefaultAir());
+                color currentColor;
+				refractionN.push(1.0);
+				raytrace (viewRay, currentColor, myScene, 0, 1.0);
                 float luminance = 0.2126f * currentColor.red
                                 + 0.715160f * currentColor.green
                                 + 0.072169f * currentColor.blue;
@@ -358,7 +246,9 @@ float AutoExposure(scene &myScene)
                 dir = invsqrtf(norm) * dir;
 
                 ray viewRay = { {0.5f * myScene.sizex,  0.5f * myScene.sizey, 0.0f}, {dir.x, dir.y, dir.z} };
-                color currentColor = addRay (viewRay, myScene, context::getDefaultAir());
+                color currentColor;
+				refractionN.push(1.0);
+				raytrace (viewRay, currentColor, myScene, 0, 1.0);
                 float luminance = 0.2126f * currentColor.red
                                 + 0.715160f * currentColor.green
                                 + 0.072169f * currentColor.blue;
@@ -401,7 +291,8 @@ bool draw(char* outputName, scene &myScene)
     // end of the TGA header 
 
     float exposure = AutoExposure(myScene);
-
+	maxDepth = myScene.complexity;
+	
     for (y = 0; y < myScene.sizey; ++y)
     for (x = 0 ; x < myScene.sizex; ++x)
     {
@@ -417,12 +308,13 @@ bool draw(char* outputName, scene &myScene)
                 if (myScene.persp.type == perspective::orthogonal)
                 {
                     ray viewRay = { {fragmentx, fragmenty, -10000.0f}, { 0.0f, 0.0f, 1.0f}};
-                    for (int i = 0; i < myScene.complexity; ++i)
-                    {                  
-                        color rayResult = addRay (viewRay, myScene, context::getDefaultAir());
-                        fTotalWeight += 1.0f; 
-                        temp += rayResult;
-                    }
+                                    
+					color rayResult;
+					refractionN.push(1.0);
+					raytrace(viewRay, rayResult, myScene, 0, 1.0);
+					fTotalWeight += 1.0f; 
+					temp += rayResult;
+                    
                     temp = (1.0f / fTotalWeight) * temp;
                 }
                 else
@@ -444,29 +336,32 @@ bool draw(char* outputName, scene &myScene)
                     // of course the divergence is caused by the direction of the ray itself.
                     point ptAimed = start + myScene.persp.clearPoint * dir;
 
-                    for (int i = 0; i < myScene.complexity; ++i)
-                    {                  
-                        ray viewRay = { {start.x, start.y, start.z}, {dir.x, dir.y, dir.z} };
+                                     
+					ray viewRay = { {start.x, start.y, start.z}, {dir.x, dir.y, dir.z} };
 
-                        if (myScene.persp.dispersion != 0.0f)
-                        {
-                            vector2 vDisturbance;                        
-                            vDisturbance.x = (myScene.persp.dispersion / RAND_MAX) * (1.0f * rand());
-                            vDisturbance.y = (myScene.persp.dispersion / RAND_MAX) * (1.0f * rand());
-                            vDisturbance.z = 0.0f;
+					if (myScene.persp.dispersion != 0.0f)
+					{
+						vector2 vDisturbance;                        
+						vDisturbance.x = (myScene.persp.dispersion / RAND_MAX) * (1.0f * rand());
+						vDisturbance.y = (myScene.persp.dispersion / RAND_MAX) * (1.0f * rand());
+						vDisturbance.z = 0.0f;
 
-                            viewRay.start = viewRay.start + vDisturbance;
-                            viewRay.dir = ptAimed - viewRay.start;
-                            
-                            norm = viewRay.dir * viewRay.dir;
-                            if (norm == 0.0f)
-                                break;
-                            viewRay.dir = invsqrtf(norm) * viewRay.dir;
-                        }
-                        color rayResult = addRay (viewRay, myScene, context::getDefaultAir());
-                        fTotalWeight += 1.0f;
-                        temp += rayResult;
-                    }
+						viewRay.start = viewRay.start + vDisturbance;
+						viewRay.dir = ptAimed - viewRay.start;
+						
+						norm = viewRay.dir * viewRay.dir;
+						if (norm == 0.0f)
+							break;
+						viewRay.dir = invsqrtf(norm) * viewRay.dir;
+					}
+					color rayResult;
+		
+					refractionN.push(1.0);
+					raytrace(viewRay, rayResult, myScene, 0, 1.0);
+					
+					fTotalWeight += 1.0f;
+					temp += rayResult;
+                    
                     temp = (1.0f / fTotalWeight) * temp;
                 }
                 

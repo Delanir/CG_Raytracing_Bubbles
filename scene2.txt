@@ -35,11 +35,11 @@ Scene
 
 	// Count the objects in the scene
 	// description will follow
-	NumberOfMaterials = 3;
+	NumberOfMaterials = 4;
 	NumberOfSpheres = 3;
 	NumberOfLights = 2;
 
-	Complexity = 1;
+	Complexity = 15;
 
 	Cubemap.Up = alpup.tga;
 	Cubemap.Down = alpdown.tga;
@@ -48,33 +48,74 @@ Scene
 	Cubemap.Forward = alpforward.tga;
 	Cubemap.Backward = alpback.tga;
 	Cubemap.Exposed = true;
-	Cubemap.sRGB = false;
+	Cubemap.sRGB = true;
 }
 
 
 ///////////////////////////////////////
 //         List of materials         //
-///////////////////////////////////////
+/////////////////////////////////////// 
 Material0
 {
-  Diffuse = 0.1, 0.1, 0.1;
-  Reflection = 0.0;
+  Type = turbulence;
+  
+  Diffuse = 0.35, 0.25, 0.01;
+  
+  Diffuse2 = 0.5, 0.5, 0.01;   
+  
+  Density = 1.0;
+  Reflection = 0.0; 
   Refraction = 0.0;
+  
+  Specular = 0.0, 0.0, 0.0;  
+  
+  Power = 60;
 }
 
 Material1
 {
-  Diffuse = 0.0, 1.0, 1.0;
-  Reflection = 0.5;
-  Refraction = 0.0;
-}
+  Type = gouraud;
 
+  Diffuse = 0.23, 0.1, 0.12;    
+  
+  Bumplevel = 0.1;
+  Density = 1.33;
+  Reflection = 0.05;  
+  Refraction = 0.95;
+  
+  Specular = 1.2, 1.2, 1.2;  
+  Power = 60;
+}
 Material2
 {
-  Diffuse = 1.0, 0.0, 1.0;
-  Reflection = 0.5;
-  Refraction = 0.0;
+  Type = gouraud2;
+
+  Diffuse = 0.23, 0.1, 0.12;    
+  
+  Bumplevel = 0.1;
+  Density = 2.33;
+  Reflection = 0.2;  
+  Refraction = 0.8;
+  
+  Specular = 1.2, 1.2, 1.2;  
+  Power = 60;
 }
+
+Material3
+{
+  Type = gouraud;
+
+  Diffuse = 0.23, 0.1, 0.12;    
+  
+  Bumplevel = 0.1;
+  Density = 2.33;
+  Reflection = 0.05;  
+  Refraction = 0.95;
+  
+  Specular = 1.2, 1.2, 1.2;  
+  Power = 60;
+}
+
 
 ///////////////////////////////////////
 //         List of spheres           //
@@ -83,7 +124,7 @@ Sphere0
 {
   Center = 233.0, 290.0, -150.0;
   Size = 100.0;
-  Material.Id = 0;
+  Material.Id = 1;
 }
 
 Sphere1
@@ -97,7 +138,7 @@ Sphere2
 {
   Center = 320.0, 140.0, 0.0;
   Size = 100.0;
-  Material.Id = 1;
+  Material.Id = 2;
 }
 
 ///////////////////////////////////////

@@ -12,7 +12,7 @@
 Scene 
 {
   // output image dimension
-  Image.Width = 1280; 
+  Image.Width = 640; 
   Image.Height = 480;   
   Perspective.Type = conic;
 
@@ -35,16 +35,16 @@ Scene
   // Count the objects in the scene
   NumberOfMaterials = 4;
   NumberOfSpheres = 3;
-  NumberOfLights = 2; 
+  NumberOfLights = 3; 
   
-  Complexity = 1;
+  Complexity = 30;
   
-  Cubemap.Up = alpup2.tga;
-  Cubemap.Down = alpdown2.tga;
-  Cubemap.Right = alpright2.tga;
-  Cubemap.Left = alpleft2.tga;
-  Cubemap.Forward = alpforward2.tga;
-  Cubemap.Backward = alpback2.tga;
+  Cubemap.Up = alpup.tga;
+  Cubemap.Down = alpdown.tga;
+  Cubemap.Right = alpright.tga;
+  Cubemap.Left = alpleft.tga;
+  Cubemap.Forward = alpforward.tga;
+  Cubemap.Backward = alpback.tga;
   Cubemap.Exposed = true;
   Cubemap.sRGB = true;
   
@@ -74,29 +74,29 @@ Material1
 {
   Type = gouraud;
 
-  Diffuse = 0.0, 0.0, 0.0;    
+  Diffuse = 0.23, 0.1, 0.12;    
   
   Bumplevel = 0.1;
-  Density = 0.0;
-  Reflection = 1.0;  
-  Refraction = 0.0;
+  Density = 1.33;
+  Reflection = 0.1;  
+  Refraction = 0.9;
   
   Specular = 1.2, 1.2, 1.2;  
   Power = 60;
 }
 Material2
 {
-  Type = marble;
+  Type = gouraud2;
+
+  Diffuse = 0.23, 0.1, 0.12;    
   
-  Diffuse = 0.5, 0.5, 0.5;    
-  
-  Diffuse2 = 0.15, 0.01, 0.15;    
-  
+  Bumplevel = 0.1;
   Density = 1.0;
-  Reflection = 0.01;  
-  Refraction = 0.0;
+  Reflection = 0.0;  
+  Refraction = 1.0;
+  
   Specular = 1.2, 1.2, 1.2;  
-  Power = 60; 
+  Power = 60;
 }
 
 Material3
@@ -106,7 +106,7 @@ Material3
   Diffuse = 0.0, 0.0, 0.0;    
   
   Bumplevel = 0.1;
-  Density = 2.0;
+  Density = 1.33;
   Reflection = 0.9;  
   Refraction = 0.9;  
   
@@ -119,9 +119,9 @@ Material3
 /////////////////////////////////////// 
 Sphere0
 {
-  Center = 400.0, 290.0, 320.0;
-  Size = 50.0;
-  Material.Id = 1;
+  Center = 600.0, 290.0, 480.0;
+  Size = 99.0;
+  Material.Id = 2;
 }
 Sphere1
 {
@@ -131,7 +131,7 @@ Sphere1
 }
 Sphere2
 {
-  Center = 450.0, 140.0, 400.0;
+  Center = 300.0, 100.0, 280.0;
   Size = 50.0;
   Material.Id = 1;
 }
@@ -148,5 +148,10 @@ Light1
 {
   Position = 640.0, 480.0, -100.0;
   Intensity = 0.6, 0.7, 1.0;
+}
+Light2
+{
+  Position = 640.0, 0.0, 100.0;
+  Intensity = 0.6, 6.0, 1.0;
 }
 

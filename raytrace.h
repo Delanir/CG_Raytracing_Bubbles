@@ -8,7 +8,7 @@
 
 #ifndef __RAYTRACE_H
 #define __RAYTRACE_H
-
+#include <cmath>
 #include "SimpleString.h"
 
 /* Piover180 is simply a conversion factor for converting between degrees and radians. */
@@ -29,7 +29,16 @@ struct vector2 {
         this->z += v2.z;
 	    return *this;
     }
+	
+	vector2& operator = (const vector2 &v2){
+	    this->x = v2.x;
+        this->y = v2.y;
+        this->z = v2.z;
+	    return *this;
+    }
 };
+
+
 
 
 inline point operator + (const point&p, const vector2 &v){
@@ -150,6 +159,13 @@ struct ray {
 	vector2 dir;
 };
 
+inline float normalize(ray viewRay){
+	point start = viewRay.start;
+	point end =viewRay.start + viewRay.dir;
+	float n= (end.x-start.x)*(end.x-start.x)+(end.y-start.y)*(end.y-start.y)+(end.z-start.z)*(end.z-start.z);
+	
+	return sqrtf(n);
+}
 
 struct cubemap
 {

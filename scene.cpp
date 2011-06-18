@@ -35,6 +35,13 @@ void GetMaterial(const Config &sceneFile, material &currentMat)
         fScalar =  float(sceneFile.GetByNameAsFloat("Refraction", 0.0f)); 
 		currentMat.refraction = fScalar;
     }
+	
+	// Density color
+    {
+        float fScalar;
+        fScalar =  float(sceneFile.GetByNameAsFloat("Density", 0.0f)); 
+		currentMat.density = fScalar;
+    }
 }
 
 void GetSphere(const Config &sceneFile, sphere &currentSph)
