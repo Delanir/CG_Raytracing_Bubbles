@@ -55,37 +55,37 @@ color addRay(ray viewRay, scene &myScene, context myContext)
     color output = {0.0f, 0.0f, 0.0f}; 
     float coef = 1.0f;
     int level = 0;
+	int currentSphere;
+	float t;
     do 
     {
         point ptHitPoint;
         vector2 vNormal;
         material currentMat;
-        {
-            int currentSphere=-1;
-            float t = 2000.0f;
-            for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
-            {
-                if (hitSphere(viewRay, myScene.sphereContainer[i], t))
-                {
-                    currentSphere = i;
-                }
-            }
-			if (currentSphere != -1)
-            {
-                ptHitPoint  = viewRay.start + t * viewRay.dir;
-                vNormal = ptHitPoint - myScene.sphereContainer[currentSphere].pos;
-                float temp = vNormal * vNormal;
-                if (temp == 0.0f)
-                    break;
-                temp = invsqrtf(temp);
-                vNormal = temp * vNormal;
-                currentMat = myScene.materialContainer[myScene.sphereContainer[currentSphere].materialId];
-            }
-            else
-            {
-                break;
-            }
-        }
+		currentSphere=-1;
+		t = 2000.0f;
+		for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
+		{
+			if (hitSphere(viewRay, myScene.sphereContainer[i], t))
+			{
+				currentSphere = i;
+			}
+		}
+		if (currentSphere != -1)
+		{
+			ptHitPoint  = viewRay.start + t * viewRay.dir;
+			vNormal = ptHitPoint - myScene.sphereContainer[currentSphere].pos;
+			float temp = vNormal * vNormal;
+			if (temp == 0.0f)
+				break;
+			temp = invsqrtf(temp);
+			vNormal = temp * vNormal;
+			currentMat = myScene.materialContainer[myScene.sphereContainer[currentSphere].materialId];
+		}
+		else
+		{
+			break;
+		}
 
         float bInside;
 
@@ -139,7 +139,7 @@ color addRay(ray viewRay, scene &myScene, context myContext)
             }
 
             // Here we take into account that the light movement is symmetrical
-            // From the observer to the source or from the source to the oberver.
+            // From the observer to the source or from the source to the observer.
             // We then do the computation of the coefficient by taking into account
             // the ray coming from the viewing point.
             fCosThetaI = fabsf(fViewProjection); 
