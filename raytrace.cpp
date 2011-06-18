@@ -124,48 +124,11 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	float n = ni / nr;
 	//cout << n<< endl;
 	
-	float cos_r;/*
-	if(cos_i  >= 0.999f){
-		//cout << "HERE" << endl;
-		// In this case the ray is coming parallel to the normal to the surface
-			
-			reflectance=n*n;
-			if(reflectance>1.0f)
-				reflectance=1.0f;
-			reflectance *= reflectance; 
-			cos_r = 1.0f;
-			transmitance*=(1-reflectance);
-			//cout << transmitance<< endl;
-	}
-	*/ 
+	float cos_r;
 	if(transmitance>0.0f){
 		float sin_r=(1.0f/n)*sin(acos(cos_i));
 		cos_r= sqrtf( 1.0 -  (n*n *(1-cos_i*cos_i)) );
 		
-		/*if (sin_r*sin_r > 0.9999f)
-		{
-			// Beyond that angle all surfaces are purely reflective
-			reflectance = 1.0f ;
-			cos_r = 0.0f;
-		}else{
-			float fReflectanceOrtho = (nr * cos_r - ni * cos_i ) 
-				/ (nr * cos_r + ni  * cos_i);
-			fReflectanceOrtho = fReflectanceOrtho * fReflectanceOrtho;
-			// Then we compute the reflectance in the plane parallel to the plane of reflection
-			float fReflectanceParal = (ni * cos_r - nr*cos_i )
-				/ (ni * cos_r - nr*cos_i);
-			fReflectanceParal = fReflectanceParal * fReflectanceParal;
-
-			// The reflectance coefficient is the average of those two.
-			// If we consider a light that hasn't been previously polarized.
-			reflectance =  0.5f * (fReflectanceOrtho + fReflectanceParal);
-		
-		}
-		transmitance= transmitance * (1-reflectance);
-		*/
-	}
-	
-	if(transmitance > 0.0f ){
 
 		ray refracted;
 		refracted.start=ptHitPoint;
@@ -312,10 +275,9 @@ bool draw(char* outputName, scene &myScene)
 					color rayResult;
 					refractionN.push(1.0);
 					raytrace(viewRay, rayResult, myScene, 0, 1.0);
-					fTotalWeight += 1.0f; 
-					temp += rayResult;
+					
+					temp = rayResult;
                     
-                    temp = (1.0f / fTotalWeight) * temp;
                 }
                 else
                 {
@@ -359,10 +321,8 @@ bool draw(char* outputName, scene &myScene)
 					refractionN.push(1.0);
 					raytrace(viewRay, rayResult, myScene, 0, 1.0);
 					
-					fTotalWeight += 1.0f;
-					temp += rayResult;
+					temp = rayResult;
                     
-                    temp = (1.0f / fTotalWeight) * temp;
                 }
                 
                 // pseudo photo exposure

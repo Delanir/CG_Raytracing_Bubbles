@@ -33,18 +33,18 @@ Scene
   Tonemap.Black = 0.1f;
   
   // Count the objects in the scene
-  NumberOfMaterials = 2;
+  NumberOfMaterials = 4;
   NumberOfSpheres = 6;
   NumberOfLights = 2; 
   
   Complexity = 10;
   
-  Cubemap.Up = alpup.tga;
-  Cubemap.Down = alpdown.tga;
-  Cubemap.Right = alpright.tga;
-  Cubemap.Left = alpleft.tga;
-  Cubemap.Forward = alpforward.tga;
-  Cubemap.Backward = alpback.tga;
+  	Cubemap.Up = underwater01/underwater01up.tga;
+	Cubemap.Down = underwater01/underwater01dn.tga;
+	Cubemap.Right = underwater01/underwater01rt.tga;
+	Cubemap.Left = underwater01/underwater01lf.tga;
+	Cubemap.Forward = underwater01/underwater01ft.tga;
+	Cubemap.Backward = underwater01/underwater01bk.tga;
   Cubemap.Exposed = true;
   Cubemap.sRGB = true;
   
@@ -53,12 +53,26 @@ Scene
 ///////////////////////////////////////
 //         List of materials         //
 /////////////////////////////////////// 
-
-
-
 Material0
 {
-  Type = soapfilm;
+  Type = turbulence;
+  
+  Diffuse = 0.35, 0.25, 0.01;
+  
+  Diffuse2 = 0.5, 0.5, 0.01;   
+  
+  Density = 1.0;
+  Reflection = 0.0; 
+  Refraction = 0.0;
+  
+  Specular = 0.0, 0.0, 0.0;  
+  
+  Power = 60;
+}
+
+Material1
+{
+  Type = gouraud;
 
   Diffuse = 0.23, 0.1, 0.12;    
   
@@ -70,9 +84,9 @@ Material0
   Specular = 1.2, 1.2, 1.2;  
   Power = 60;
 }
-Material1
+Material2
 {
-  Type = air;
+  Type = gouraud2;
 
   Diffuse = 0.23, 0.1, 0.12;    
   
@@ -85,6 +99,20 @@ Material1
   Power = 60;
 }
 
+Material3
+{
+  Type = gouraud;
+
+  Diffuse = 0.0, 0.0, 0.0;    
+  
+  Bumplevel = 0.1;
+  Density = 1.33;
+  Reflection = 0.9;  
+  Refraction = 0.9;  
+  
+  Specular = 1.2, 1.2, 1.2;  
+  Power = 60;
+}
 
 ///////////////////////////////////////
 //         List of spheres           //
@@ -93,38 +121,38 @@ Sphere0
 {
   Center = 100.0, 290.0, 480.0;
   Size = 99.5;
-  Material.Id = 1;
+  Material.Id = 2;
 }
 Sphere1
 {
   Center = 100.0, 290.0, 480.0;
   Size = 100.0;
-  Material.Id = 0;
+  Material.Id = 1;
 }
 Sphere2
 {
   Center = 300.0, 100.0, 280.0;
   Size = 50.0;
-  Material.Id = 0;
+  Material.Id = 1;
 }
 Sphere3
 {
   Center = 300.0, 100.0, 280.0;
   Size = 49.9;
-  Material.Id = 1;
+  Material.Id = 2;
 }
 
 Sphere4
 {
   Center = 330.0, 100.0, 280.0;
   Size = 40.0;
-  Material.Id = 0;
+  Material.Id = 1;
 }
 Sphere5
 {
   Center = 330.0, 100.0, 280.0;
   Size = 39.9;
-  Material.Id = 1;
+  Material.Id = 2;
 }
 
 
