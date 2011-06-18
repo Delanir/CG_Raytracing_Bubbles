@@ -201,7 +201,8 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	
 	
 	}
-
+	
+	
 	c_color=output;
 	
 	return 0;
