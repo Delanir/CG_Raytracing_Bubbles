@@ -11,7 +11,7 @@ const SimpleString emptyString("");
 
 void GetMaterial(const Config &sceneFile, material &currentMat)
 {    
-    // diffuse color
+    // Diffuse color
     {
         float fScalar;
         fScalar =  float(sceneFile.GetByNameAsFloat("Diffuse", 0.0f)); 
@@ -22,18 +22,25 @@ void GetMaterial(const Config &sceneFile, material &currentMat)
 		currentMat.diffuse.blue  = vColor.z;
     }
 
-    // Reflection color
+    // Reflection
     {
         float fScalar;
         fScalar =  float(sceneFile.GetByNameAsFloat("Reflection", 0.0f)); 
 		currentMat.reflection = fScalar;
     }
 	
-	// Refraction color
+	// Refraction
     {
         float fScalar;
         fScalar =  float(sceneFile.GetByNameAsFloat("Refraction", 0.0f)); 
 		currentMat.refraction = fScalar;
+    }
+	
+	// Density
+    {
+        float fScalar;
+        fScalar =  float(sceneFile.GetByNameAsFloat("Density", 0.0f)); 
+		currentMat.density = fScalar;
     }
 }
 

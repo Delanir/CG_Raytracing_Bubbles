@@ -34,10 +34,10 @@ Scene
   
   // Count the objects in the scene
   NumberOfMaterials = 2;
-  NumberOfSpheres = 3;
+  NumberOfSpheres = 5;
   NumberOfLights = 2; 
   
-  Complexity = 100;
+  Complexity = 10;
   
   Cubemap.Up = alpup.tga;
   Cubemap.Down = alpdown.tga;
@@ -55,31 +55,30 @@ Scene
 /////////////////////////////////////// 
 Material0
 {
-  Type = turbulence;
+  Type = soapfilm;
   
-  Diffuse = 0.35, 0.25, 0.01;
+  Diffuse = 0.0, 0.0, 0.0;
   
-  Density = 1.0;
-  Reflection = 0.0; 
-  Refraction = 0.0;
+  Density = 1.33;
+  Reflection = 0.15; 
+  Refraction = 0.85;
   
-  Specular = 0.0, 0.0, 0.0;  
+  Specular = 1.2, 1.2, 1.2;  
   
   Power = 60;
 }
 
 Material1
 {
-  Type = gouraud;
+  Type = air;
 
-  Diffuse = 0.0, 0.0, 0.0;
+  Diffuse = 0.0, 0.0, 0.0;    
   
   Density = 1.0;
-  Reflection = 0.5;  
-  Refraction = 1.0;
+  Reflection = 0.1;
+  Refraction = 0.9;
   
-  Specular = 1.2, 1.2, 1.2;
-  
+  Specular = 1.2, 1.2, 1.2;  
   Power = 60;
 }
 
@@ -88,22 +87,36 @@ Material1
 /////////////////////////////////////// 
 Sphere0
 {
-  Center = 400.0, 290.0, 320.0;
-  Size = 50.0;
+  Center = 100.0, 290.0, 480.0;
+  Size = 99.5;
   Material.Id = 1;
 }
 Sphere1
 {
-  Center = 600.0, 290.0, 480.0;
+  Center = 100.0, 290.0, 480.0;
   Size = 100.0;
-  Material.Id = 1;
+  Material.Id = 0;
 }
 Sphere2
 {
-  Center = 450.0, 140.0, 400.0;
+  Center = 300.0, 100.0, 280.0;
   Size = 50.0;
+  Material.Id = 0;
+}
+Sphere3
+{
+  Center = 100.0, 290.0, 480.0;
+  Size = 49.5;
   Material.Id = 1;
 }
+Sphere4
+{
+  Center = 100.0, 290.0, 480.0;
+  Size = 50.0;
+  Material.Id = 0;
+}
+
+
 
 ///////////////////////////////////////
 //         List of lights            //
@@ -118,4 +131,5 @@ Light1
   Position = 640.0, 480.0, -100.0;
   Intensity = 0.6, 0.7, 1.0;
 }
+
 
