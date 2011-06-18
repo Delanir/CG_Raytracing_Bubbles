@@ -87,7 +87,7 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 		vNormal = ptHitPoint - myScene.sphereContainer[currentSphere].pos;
 		float temp = vNormal * vNormal;
 		if (temp == 0.0f){
-			
+	
 			return -1;// lalalalalalalala
 
 		}
@@ -124,7 +124,7 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	float n = ni / nr;
 	//cout << n<< endl;
 	
-	float cos_r;
+	float cos_r;/*
 	if(cos_i  >= 0.999f){
 		//cout << "HERE" << endl;
 		// In this case the ray is coming parallel to the normal to the surface
@@ -135,7 +135,10 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 			reflectance *= reflectance; 
 			cos_r = 1.0f;
 			transmitance*=(1-reflectance);
-	}else{
+			//cout << transmitance<< endl;
+	}
+	*/
+	if(transmitance>0.0f){
 		float sin_r=(1.0f/n)*sin(acos(cos_i));
 		cos_r= sqrtf( 1.0 -  (n*n *(1-cos_i*cos_i)) );
 		
@@ -163,10 +166,6 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	}
 	
 	if(transmitance > 0.0f ){
-		
-		
-		
-		
 
 		ray refracted;
 		refracted.start=ptHitPoint;
