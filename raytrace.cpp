@@ -137,7 +137,7 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 			transmitance*=(1-reflectance);
 			//cout << transmitance<< endl;
 	}
-	*/
+	*/ 
 	if(transmitance>0.0f){
 		float sin_r=(1.0f/n)*sin(acos(cos_i));
 		cos_r= sqrtf( 1.0 -  (n*n *(1-cos_i*cos_i)) );
