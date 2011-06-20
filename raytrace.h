@@ -1,11 +1,3 @@
-/*
-    This file belongs to the Ray tracing tutorial of http://www.codermind.com/
-    It is free to use for educational purpose and cannot be redistributed
-    outside of the tutorial pages.
-    Any further inquiry :
-    mailto:info@codermind.com
- */
-
 #ifndef __RAYTRACE_H
 #define __RAYTRACE_H
 #include <cmath>
@@ -150,7 +142,6 @@ struct sphere {
 struct light {
 	point pos;
 	color intensity;
-	float red, green, blue;
 };
 
 

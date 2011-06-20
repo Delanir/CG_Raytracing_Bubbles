@@ -193,7 +193,7 @@ float AutoExposure(scene &myScene)
                                 1.0f}; 
 
                 float norm = dir * dir;
-                // I don't think this can happen but we've never too prudent
+                // I don't think this can happen but we can never be too prudent
                 if (norm == 0.0f) 
                     break;
                 dir = invsqrtf(norm) * dir;

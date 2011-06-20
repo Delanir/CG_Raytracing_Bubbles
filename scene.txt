@@ -16,7 +16,7 @@ Scene
   Image.Height = 480;   
   Perspective.Type = conic;
 
-  // field of view on horizontal axis (from extrem right to extrem left)
+  // field of view on horizontal axis (from extreme right to extreme left)
   // in degrees
   Perspective.FOV = 90.0f;
   // Distance of the plane where objects are "in focus"
