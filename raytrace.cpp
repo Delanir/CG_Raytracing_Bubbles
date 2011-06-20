@@ -11,6 +11,7 @@ using namespace std;
 #include "scene.h"
 #include "cubemap.h"
 
+#define ACCUMULATION_SIZE 16
 
 
 stack <float> refractionN;
@@ -20,8 +21,7 @@ int maxDepth=0;
 bool hitSphere(const ray &r, const sphere &s, float &t)
 { 
 	// Intersection of a ray and a sphere
-	// Check the articles for the rationale
-	// NB : this is probably a naive solution
+	// this is probably a naive solution
 	// that could cause precision problems
 	// but that will do it for now.
 	vector2 dist = s.pos - r.start;
@@ -58,20 +58,23 @@ float srgbEncode(float c)
 }
 
 int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
-	color output = {0.0f, 0.0f, 0.0f}; 
-    float coef = 1.0f;
-	float reflectance;
-	float transmitance;
-	if(depth>maxDepth ){
+	if (depth > maxDepth){
 		return -1;
 	}
 	
+	color output = {0.0f, 0.0f, 0.0f}; 
+	int currentSphere = -1;
+    float coef = 1.0f;
+	float reflectance;
+	float transmitance;
+	float nr;
+	float t = 2000.0f;
 	point ptHitPoint;
 	vector2 vNormal;
 	material currentMat;
 	bool bInside;
-	int currentSphere=-1;
-	float t = 2000.0f;
+	
+	
 	for (unsigned int i = 0; i < myScene.sphereContainer.size() ; ++i)
 	{
 		if (hitSphere(viewRay, myScene.sphereContainer[i], t))
@@ -97,20 +100,21 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 		c_color=output;
 		return 0;
 	}
-	float nr ;
+
 	if (vNormal * viewRay.dir > 0.0f)
 	{
-		vNormal = -1.0f * vNormal;
 		bInside = true;
 		
-		nr=refractionN.top();
+		nr = refractionN.top();
 		refractionN.pop();
+		
+		vNormal = -1.0f * vNormal;
 	}
 	else
 	{
-		nr= currentMat.density;
-		
 		bInside = false;
+		
+		nr = currentMat.density;
 	}
 	
 	reflectance=0.0f;
@@ -121,20 +125,15 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	//cout << n<< endl;
 	
 	float cos_r;
-	if(transmitance>0.0f){
-		float sin_r=(1.0f/n)*sin(acos(cos_i));
+	if (transmitance > 0.0f){
+		//float sin_r=(1.0f/n)*sin(acos(cos_i));
 		cos_r= sqrtf( 1.0 -  (n*n *(1-cos_i*cos_i)) );
 		
 
 		ray refracted;
 		refracted.start=ptHitPoint;
 			
-		
 		refracted.dir = (n*viewRay.dir)+((cos_i*n)*vNormal)+((-cos_r)*vNormal);
-		
-		
-		
-		
 		
 		color refracted_color;
 		refractionN.push(nr);
@@ -146,23 +145,19 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 	
 	}
 	reflectance=currentMat.reflection+transmitance*reflectance;
-	if( reflectance >0.0f){
+	if (reflectance > 0.0f){
 		ray reflected;
-		reflected.start=ptHitPoint;
-		reflected.dir=viewRay.dir+(2*cos_i)*vNormal;
+		reflected.start = ptHitPoint;
+		reflected.dir = viewRay.dir+(2*cos_i)*vNormal;
 		
 		color reflected_color;
 		if(raytrace(reflected ,reflected_color, myScene,depth+1, ni)!=-1){
 			
-			output= reflectance * reflected_color +output;
-			//cout<< output.red;
+			output = reflectance * reflected_color +output;
 		}
-	
-	
 	}
 	
-	
-	c_color=output;
+	c_color = output;
 	
 	return 0;
 	
@@ -170,11 +165,10 @@ int raytrace(ray viewRay, color& c_color, scene &myScene,int depth, float ni){
 
 float AutoExposure(scene &myScene)
 {
-    #define ACCUMULATION_SIZE 16
     float exposure = -1.0f;
-    float accufacteur = float(max(myScene.sizex, myScene.sizey));
+    float accum = float(max(myScene.sizex, myScene.sizey));
 
-    accufacteur = accufacteur / ACCUMULATION_SIZE;
+    accum = accum / ACCUMULATION_SIZE;
 
     float mediumPoint = 0.0f;
     const float mediumPointWeight = 1.0f / (ACCUMULATION_SIZE*ACCUMULATION_SIZE);
@@ -183,7 +177,7 @@ float AutoExposure(scene &myScene)
 
             if (myScene.persp.type == perspective::orthogonal)
             {
-                ray viewRay = { {float(x)*accufacteur, float(y) * accufacteur, -1000.0f}, { 0.0f, 0.0f, 1.0f}};
+                ray viewRay = { {float(x)*accum, float(y) * accum, -1000.0f}, { 0.0f, 0.0f, 1.0f}};
                 color currentColor;
 				refractionN.push(1.0);
 				raytrace (viewRay, currentColor, myScene, 0, 1.0);
@@ -194,8 +188,8 @@ float AutoExposure(scene &myScene)
             }
             else
             {
-                vector2 dir = {(float(x)*accufacteur - 0.5f * myScene.sizex) * myScene.persp.invProjectionDistance, 
-                                (float(y) * accufacteur - 0.5f * myScene.sizey) * myScene.persp.invProjectionDistance, 
+                vector2 dir = {(float(x)*accum - 0.5f * myScene.sizex) * myScene.persp.invProjectionDistance, 
+                                (float(y) * accum - 0.5f * myScene.sizey) * myScene.persp.invProjectionDistance, 
                                 1.0f}; 
 
                 float norm = dir * dir;
@@ -249,8 +243,8 @@ bool draw(char* outputName, scene &myScene)
     imageFile.put(0);
     // end of the TGA header 
 
-    float exposure = AutoExposure(myScene);
 	maxDepth = myScene.complexity;
+    float exposure = AutoExposure(myScene);
 	
     for (y = 0; y < myScene.sizey; ++y)
     for (x = 0 ; x < myScene.sizex; ++x)
@@ -262,7 +256,6 @@ bool draw(char* outputName, scene &myScene)
             {
                 float sampleRatio = 0.25f;
                 color temp = {0.0f, 0.0f, 0.0f};
-                float fTotalWeight = 0.0f;
 
                 if (myScene.persp.type == perspective::orthogonal)
                 {
@@ -272,8 +265,7 @@ bool draw(char* outputName, scene &myScene)
 					refractionN.push(1.0);
 					raytrace(viewRay, rayResult, myScene, 0, 1.0);
 					
-					temp = rayResult;
-                    
+					temp = rayResult;   
                 }
                 else
                 {
